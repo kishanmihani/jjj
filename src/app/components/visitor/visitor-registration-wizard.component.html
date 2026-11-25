@@ -1,0 +1,98 @@
+<section class="min-w-0 rounded-xl border border-slate-200 bg-white p-5 shadow-sm" aria-labelledby="wizard-title">
+  <div class="flex items-start justify-between gap-3">
+    <div>
+      <p class="mb-1.5 text-[8px] font-bold tracking-[1.05px] text-slate-500">NEW REGISTRATION</p>
+      <h2 id="wizard-title" class="m-0 text-[17px] font-bold tracking-tight text-slate-800">Register a visitor</h2>
+    </div>
+    <span class="grid size-8 place-items-center rounded-lg bg-blue-50 text-[19px] text-blue-700" aria-hidden="true">＋</span>
+  </div>
+  <app-step-indicator [step]="step" />
+
+  <div *ngIf="step === 1" class="min-h-[340px]">
+    <div class="mb-[18px]">
+      <span class="text-[8px] font-bold tracking-wide text-slate-500">STEP 1 OF 3</span>
+      <h3 class="mb-1 mt-[5px] text-[14px] font-bold text-slate-700">Who’s visiting?</h3>
+      <p class="m-0 text-[9px] leading-relaxed text-slate-500">Enter the visitor’s contact details to get started.</p>
+    </div>
+
+    <div class="mb-[14px]">
+      <label class="mb-1.5 block text-[9px] font-semibold text-slate-600" for="visitor-name">Full name <span class="text-red-600">*</span></label>
+      <input id="visitor-name" class="h-[37px] w-full rounded-[7px] border border-slate-200 bg-white px-2.5 text-[10px] text-slate-700 outline-none transition placeholder:text-slate-400 focus:border-blue-400 focus:ring-[3px] focus:ring-blue-100"
+        [class.border-red-400]="!!nameError" type="text" [value]="formData.name" placeholder="e.g. Priya Sharma" autocomplete="name"
+        [attr.aria-invalid]="!!nameError" aria-describedby="name-hint" (input)="nameChange.emit($any($event.target).value)" />
+      <p class="mt-[5px] text-[8px] leading-snug" [class.text-red-700]="!!nameError" [class.text-slate-500]="!nameError" id="name-hint">
+        {{ nameError || 'Enter the visitor’s full name. Minimum 3 characters.' }}
+      </p>
+    </div>
+
+    <div class="mb-[14px]">
+      <label class="mb-1.5 block text-[9px] font-semibold text-slate-600" for="visitor-contact">Contact number <span class="text-red-600">*</span></label>
+      <input id="visitor-contact" class="h-[37px] w-full rounded-[7px] border border-slate-200 bg-white px-2.5 text-[10px] text-slate-700 outline-none transition placeholder:text-slate-400 focus:border-blue-400 focus:ring-[3px] focus:ring-blue-100"
+        [class.border-red-400]="!!contactError" type="tel" [value]="formData.contact" placeholder="+91 9812341234" autocomplete="tel"
+        [attr.aria-invalid]="!!contactError" aria-describedby="contact-hint" (input)="contactChange.emit($any($event.target).value)" />
+      <p class="mt-[5px] text-[8px] leading-snug" [class.text-red-700]="!!contactError" [class.text-slate-500]="!contactError" id="contact-hint">
+        {{ contactError || '10 digits; optional +91 prefix.' }}
+      </p>
+    </div>
+
+    <div class="mt-[22px] flex justify-end">
+      <button type="button" class="inline-flex min-h-[37px] items-center justify-center gap-2 rounded-[7px] bg-blue-600 px-[13px] text-[9px] font-bold text-white shadow-sm transition hover:bg-blue-700 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500 disabled:cursor-not-allowed disabled:bg-blue-300 disabled:shadow-none"
+        [disabled]="!stepOneValid" (click)="continueStep.emit()">Continue <span aria-hidden="true">→</span></button>
+    </div>
+  </div>
+
+  <div *ngIf="step === 2" class="min-h-[340px]">
+    <div class="mb-[18px]">
+      <span class="text-[8px] font-bold tracking-wide text-slate-500">STEP 2 OF 3</span>
+      <h3 class="mb-1 mt-[5px] text-[14px] font-bold text-slate-700">What brings them in?</h3>
+      <p class="m-0 text-[9px] leading-relaxed text-slate-500">Choose a visit purpose and the employee they’re meeting.</p>
+    </div>
+
+    <div class="mb-[14px]">
+      <label class="mb-1.5 block text-[9px] font-semibold text-slate-600" for="purpose">Visit purpose <span class="text-red-600">*</span></label>
+      <select id="purpose" class="h-[37px] w-full rounded-[7px] border border-slate-200 bg-white px-2.5 text-[10px] text-slate-700 outline-none transition focus:border-blue-400 focus:ring-[3px] focus:ring-blue-100"
+        [class.border-red-400]="stepTwoTouched && !formData.purpose" [value]="formData.purpose" [attr.aria-invalid]="stepTwoTouched && !formData.purpose"
+        (change)="purposeChange.emit($any($event.target).value)">
+        <option value="">Select a purpose</option>
+        <option *ngFor="let purpose of purposes" [value]="purpose">{{ purpose }}</option>
+      </select>
+      <p *ngIf="stepTwoTouched && !formData.purpose" class="mt-[5px] text-[8px] leading-snug text-red-700">Choose a visit purpose.</p>
+    </div>
+
+    <app-host-picker [hostId]="formData.hostId" [query]="hostQuery" (queryChange)="hostQueryChange.emit($event)" (hostSelect)="hostSelect.emit($event)" />
+    <p *ngIf="stepTwoTouched && !formData.hostId" class="-mt-1.5 mb-0 text-[8px] leading-snug text-red-700">Select a host employee.</p>
+
+    <div class="mt-[22px] flex items-center justify-between gap-2.5">
+      <button type="button" class="inline-flex min-h-[37px] items-center justify-center gap-2 rounded-[7px] border border-slate-200 bg-white px-[13px] text-[9px] font-semibold text-slate-600 transition hover:bg-slate-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500" (click)="back.emit()">← Back</button>
+      <button type="button" class="inline-flex min-h-[37px] items-center justify-center gap-2 rounded-[7px] bg-blue-600 px-[13px] text-[9px] font-bold text-white shadow-sm transition hover:bg-blue-700 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500 disabled:cursor-not-allowed disabled:bg-blue-300 disabled:shadow-none"
+        [disabled]="!stepTwoValid" (click)="continueStep.emit()">Review <span aria-hidden="true">→</span></button>
+    </div>
+  </div>
+
+  <div *ngIf="step === 3" class="min-h-[340px]">
+    <div class="mb-[18px]">
+      <span class="text-[8px] font-bold tracking-wide text-slate-500">STEP 3 OF 3</span>
+      <h3 class="mb-1 mt-[5px] text-[14px] font-bold text-slate-700">Review visitor details</h3>
+      <p class="m-0 text-[9px] leading-relaxed text-slate-500">Check the information before adding the visitor to today’s board.</p>
+    </div>
+
+    <app-review-section title="Visitor" editLabel="visitor details" (edit)="editVisitor.emit()">
+      <dl class="mt-[11px] grid grid-cols-2 gap-2.5">
+        <div><dt class="mb-1 text-[8px] text-slate-400">Full name</dt><dd class="m-0 break-words text-[9px] font-semibold text-slate-700">{{ formData.name.trim() }}</dd></div>
+        <div><dt class="mb-1 text-[8px] text-slate-400">Contact</dt><dd class="m-0 break-words text-[9px] font-semibold text-slate-700">{{ formData.contact.trim() }}</dd></div>
+      </dl>
+    </app-review-section>
+    <app-review-section title="Visit" editLabel="visit details" (edit)="editVisit.emit()">
+      <dl class="mt-[11px] grid grid-cols-2 gap-2.5">
+        <div><dt class="mb-1 text-[8px] text-slate-400">Purpose</dt><dd class="m-0 text-[9px] font-semibold text-slate-700">{{ formData.purpose }}</dd></div>
+        <div><dt class="mb-1 text-[8px] text-slate-400">Host employee</dt><dd class="m-0 text-[9px] font-semibold text-slate-700">{{ selectedHost?.name }} <span class="font-normal text-slate-500">· {{ selectedHost?.id }}</span></dd></div>
+      </dl>
+    </app-review-section>
+
+    <div class="mt-[22px] flex items-center justify-between gap-2.5">
+      <button type="button" class="inline-flex min-h-[37px] items-center justify-center gap-2 rounded-[7px] border border-slate-200 bg-white px-[13px] text-[9px] font-semibold text-slate-600 transition hover:bg-slate-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500" (click)="back.emit()">← Back</button>
+      <button type="button" class="inline-flex min-h-[37px] items-center justify-center gap-2 rounded-[7px] bg-blue-600 px-[13px] text-[9px] font-bold text-white shadow-sm transition hover:bg-blue-700 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500"
+        (click)="submitVisit.emit()">Submit registration <span aria-hidden="true">→</span></button>
+    </div>
+  </div>
+</section>
